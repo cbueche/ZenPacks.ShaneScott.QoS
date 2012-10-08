@@ -1,0 +1,12 @@
+MANIFEST.in
+setup.py
+ZenPacks/__init__.py
+ZenPacks.ShaneScott.QoS.egg-info/PKG-INFO
+ZenPacks.ShaneScott.QoS.egg-info/SOURCES.txt
+ZenPacks.ShaneScott.QoS.egg-info/dependency_links.txt
+ZenPacks.ShaneScott.QoS.egg-info/entry_points.txt
+ZenPacks.ShaneScott.QoS.egg-info/namespace_packages.txt
+ZenPacks.ShaneScott.QoS.egg-info/not-zip-safe
+ZenPacks.ShaneScott.QoS.egg-info/test_info.txt
+ZenPacks.ShaneScott.QoS.egg-info/top_level.txt
+ZenPacks/ShaneScott/__init__.py

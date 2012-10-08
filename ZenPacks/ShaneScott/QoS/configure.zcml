@@ -1,0 +1,29 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:five="http://namespaces.zope.org/five">
+
+    <!-- Includes: Browser Configuration -->
+    <include package=".browser"/>
+
+    <!-- Info Adapters -->
+    <adapter factory=".info.PolicyInfo"
+         for=".Policy.Policy"
+         provides=".interfaces.IPolicyInfo"
+         />
+
+    <adapter factory=".info.ClassMapInfo"
+         for=".ClassMap.ClassMap"
+         provides=".interfaces.IClassMapInfo"
+         />
+
+    <adapter factory=".info.ServicePolicyInfo"
+         for=".ServicePolicy.ServicePolicy"
+         provides=".interfaces.IServicePolicyInfo"
+         />
+
+    <!-- Import directRouter Directive -->
+    <include package="Products.ZenUtils.extdirect.zope" file="meta.zcml"/>
+
+</configure>
