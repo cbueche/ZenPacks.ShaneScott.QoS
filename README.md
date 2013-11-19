@@ -13,6 +13,12 @@ Features
 - Only output traffic is shown.
 
 
+Screenshots
+-----------
+
+Everyone wants [screenshots](http://www.netnea.com/cms/2013/11/19/qos-parsing-on-cisco-routers/).
+
+
 Limitations
 -----------
 
@@ -48,8 +54,8 @@ Installation
 ------------
 
     cd ~/tmp
-    git clone FIXME
-    zenpack --install FIXME
+    git clone https://github.com/cbueche/ZenPacks.ShaneScott.QoS.git
+    zenpack --install ZenPacks.ShaneScott.QoS
     zenoss restart
 
 
@@ -112,6 +118,6 @@ Dependencies
 Authors
 -------
 
-- Shane William Scott did the initial 1.0 implementation
+- [Shane William Scott](http://www.shanewilliamscott.com/) did the initial 1.0 implementation. Kudos for his Zenoss skills and ZenPack-fu, Shane rocks !
 - Charles Bueche adapted the code and fixed some issues, eg the modeling for the Cisco ASR routers.
 
