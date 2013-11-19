@@ -8,19 +8,9 @@
     <include package=".browser"/>
 
     <!-- Info Adapters -->
-    <adapter factory=".info.PolicyInfo"
-         for=".Policy.Policy"
-         provides=".interfaces.IPolicyInfo"
-         />
-
     <adapter factory=".info.ClassMapInfo"
          for=".ClassMap.ClassMap"
          provides=".interfaces.IClassMapInfo"
-         />
-
-    <adapter factory=".info.ServicePolicyInfo"
-         for=".ServicePolicy.ServicePolicy"
-         provides=".interfaces.IServicePolicyInfo"
          />
 
     <!-- Import directRouter Directive -->

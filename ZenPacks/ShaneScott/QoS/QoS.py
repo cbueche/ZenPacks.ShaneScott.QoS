@@ -5,7 +5,10 @@ from pysnmp.entity.rfc3413.oneliner import cmdgen
 from optparse import OptionParser
 
 class QoSmodel():
+
     def get_table(self, hostname, port, community, oid):
+        """ run a snmpwalk on an OID, and get a dictionary back """
+
         errorIndication, errorStatus, errorIndex, varBindTable = cmdgen.CommandGenerator().nextCmd(cmdgen.CommunityData('my-agent', community), cmdgen.UdpTransportTarget((hostname, port)), oid)
 
         if errorIndication:
@@ -131,25 +134,6 @@ class QoSmodel():
 
         return cbQosCMCfgTable
 
-    def get_cbQosMatchStmtCfgTable(self, cbQosMatchStmtCfgEntries):
-        cbQosMatchStmtTable = AutoVivification()
-
-        for cbQosMatchStmtEntry in cbQosMatchStmtCfgEntries.keys():
-            array = cbQosMatchStmtEntry.split('.')
-            pName = array[13];
-            cbQosConfigIndex = array[14];
-
-            if pName == '1':
-                pVal = 'cbQosMatchStmtName'
-            elif pName == '2':
-                pVal = 'cbQosMatchStmtInfo'
-            else:
-                pVal = pName
-
-            cbQosMatchStmtTable[cbQosConfigIndex][pVal] = cbQosMatchStmtCfgEntries[cbQosMatchStmtEntry]
-
-        return cbQosMatchStmtTable
-
     def get_cbQosQueueingCfgTable(self, cbQosQueueingCfgEntries):
         cbQosQueueingCfgTable = AutoVivification()
 
@@ -188,6 +172,47 @@ class QoSmodel():
             cbQosQueueingCfgTable[cbQosConfigIndex][pVal] = cbQosQueueingCfgEntries[cbQosQueueingCfgEntry]
 
         return cbQosQueueingCfgTable
+
+    def get_cbQosTSCfgTable(self, cbQosTSCfgEntries):
+        cbQosTSCfgTable = AutoVivification()
+
+        for cbQosTSCfgEntry in cbQosTSCfgEntries.keys():
+            array = cbQosTSCfgEntry.split('.')
+            pName = array[13];
+            cbQosConfigIndex = array[14];
+
+            if pName == '1':
+                pVal = 'cbQosTSCfgRate'
+            elif pName == '2':
+                pVal = 'cbQosTSCfgBurstSize'
+            elif pName == '3':
+                pVal = 'cbQosTSCfgExtBurstSize'
+            elif pName == '4':
+                pVal = 'cbQosTSCfgAdaptiveEnabled'
+            elif pName == '5':
+                pVal = 'cbQosTSCfgAdaptiveRate'
+            elif pName == '6':
+                pVal = 'cbQosTSCfgLimitType'
+            elif pName == '7':
+                pVal = 'cbQosTSCfgRateType'
+            elif pName == '8':
+                pVal = 'cbQosTSCfgPercentRateValue'
+            elif pName == '9':
+                pVal = 'cbQosTSCfgBurstTime'
+            elif pName == '10':
+                pVal = 'cbQosTSCfgExtBurstTime'
+            elif pName == '11':
+                pVal = 'cbQosTSCfgRate64'
+            elif pName == '12':
+                pVal = 'cbQosTSCfgBurstSize64'
+            elif pName == '13':
+                pVal = 'cbQosTSCfgExtBurstSize64'
+            else:
+                pVal = pName
+
+            cbQosTSCfgTable[cbQosConfigIndex][pVal] = cbQosTSCfgEntries[cbQosTSCfgEntry]
+
+        return cbQosTSCfgTable
 
     def get_cbQosPoliceCfgTable(self, cbQosPoliceCfgEntries):
         cbQosPoliceCfgTable = AutoVivification()
@@ -252,36 +277,87 @@ class QoSmodel():
 
         return cbQosPoliceCfgTable
 
-    def get_bandwidth(self, cbQosPolicyIndex, cbQosObjectsIndex_param, cbQosObjectsTable, cbQosQueueingCfgTable):
-        bandwidth = 0
-        units = 1
-        for cbQosObjectsIndex in cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry']:
-            if cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry'][cbQosObjectsIndex]['cbQosObjectsType'] == '4' \
-                and cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry'][cbQosObjectsIndex]['cbQosParentObjectsIndex'] == cbQosObjectsIndex_param:
+    def get_interfaces(self, cbQosServicePolicyTable, ifEntriesTable):
+		interfaces = {}
+		for cbQosPolicyIndex in cbQosServicePolicyTable.keys():
+			interface_idx = cbQosServicePolicyTable[cbQosPolicyIndex]['cbQosIfIndex']
+			interface_name = ifEntriesTable[interface_idx]
+			interfaces[interface_idx] = interface_name
+		return interfaces
 
-                    bandwidth = cbQosQueueingCfgTable[cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry'][cbQosObjectsIndex]['cbQosConfigIndex']]['cbQosQueueingCfgBandwidth']
-                    units = cbQosQueueingCfgTable[cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry'][cbQosObjectsIndex]['cbQosConfigIndex']]['cbQosQueueingCfgBandwidthUnits']
-                    break
+    def get_indices(self, cbQosObjectsTable, cbQosObjectsTable_top_idx, objectType, parent):
+        """ parse cbQosObjectsTable to find the list of indices having a certain parent,
+            type and top-index. Used to build the object hierarchy
+        """
+        indices = []
+        for cbQosObjectsTable_idx in cbQosObjectsTable[cbQosObjectsTable_top_idx]['QosObjectsEntry']:
+            if  cbQosObjectsTable[cbQosObjectsTable_top_idx]['QosObjectsEntry'][cbQosObjectsTable_idx]['cbQosObjectsType']        == str(objectType) \
+            and cbQosObjectsTable[cbQosObjectsTable_top_idx]['QosObjectsEntry'][cbQosObjectsTable_idx]['cbQosParentObjectsIndex'] == str(parent):
+                indices.append(cbQosObjectsTable_idx)
 
-        return (bandwidth, units)
+        return indices
 
-    def get_police(self, cbQosPolicyIndex, cbQosObjectsIndex_param, cbQosObjectsTable, cbQosPoliceCfgTable):
-        cbQosPoliceCfgRate64 = 0
-        cbQosPoliceCfgRateType = 1
-        cbQosPoliceCfgPercentRateValue = 0
-        for cbQosObjectsIndex in cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry']:
-            if cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry'][cbQosObjectsIndex]['cbQosObjectsType'] == '7' \
-                and cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry'][cbQosObjectsIndex]['cbQosParentObjectsIndex'] == cbQosObjectsIndex_param:
+    def get_cbQosConfigIndex(self, cbQosObjectsTable, top_idx, obj_idx):
+        return cbQosObjectsTable[top_idx]['QosObjectsEntry'][obj_idx]['cbQosConfigIndex']
 
-                    cbQosPoliceCfgRate64 = int(cbQosPoliceCfgTable[cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry'][cbQosObjectsIndex]['cbQosConfigIndex']]['cbQosPoliceCfgRate64'])
-                    if cbQosPoliceCfgRate64 > 0:
-                        cbQosPoliceCfgRate64 = cbQosPoliceCfgRate64 / 1000
+    def get_policymap_name(self, cbQosPolicyMapCfgTable, idx):
+        return cbQosPolicyMapCfgTable[idx]['cbQosPolicyMapName']
 
-                    cbQosPoliceCfgRateType = cbQosPoliceCfgTable[cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry'][cbQosObjectsIndex]['cbQosConfigIndex']]['cbQosPoliceCfgRateType']
-                    cbQosPoliceCfgPercentRateValue = cbQosPoliceCfgTable[cbQosObjectsTable[cbQosPolicyIndex]['QosObjectsEntry'][cbQosObjectsIndex]['cbQosConfigIndex']]['cbQosPoliceCfgPercentRateValue']
-                    break
+    def get_classmap_name(self, cbQosCMCfgTable, idx):
+        return cbQosCMCfgTable[idx]['cbQosCMName']
 
-        return (int(cbQosPoliceCfgRate64), int(cbQosPoliceCfgRateType), int(cbQosPoliceCfgPercentRateValue))
+    def get_policymap_direction(self, cbQosServicePolicyTable, idx):
+        return cbQosServicePolicyTable[idx]['cbQosPolicyDirection']
+
+    def get_bandwidth(self, cbQosQueueingCfgTable, idx):
+    	bandwidth = cbQosQueueingCfgTable[idx]['cbQosQueueingCfgBandwidth']
+    	unit = cbQosQueueingCfgTable[idx]['cbQosQueueingCfgBandwidthUnits']
+        # we don't divide by 1'000, because the unit is already kbps.
+        return (bandwidth, unit)
+
+    def get_police(self, cbQosPoliceCfgTable, idx):
+        rate = cbQosPoliceCfgTable[idx]['cbQosPoliceCfgRate64']
+        unit = cbQosPoliceCfgTable[idx]['cbQosPoliceCfgRateType']
+        perc_rate = cbQosPoliceCfgTable[idx]['cbQosPoliceCfgPercentRateValue']
+        if unit == '1':   # bps
+            rate = str(int(rate) / 1000)
+        return (rate, unit, perc_rate)
+
+    def get_shaping(self, cbQosTSCfgTable, idx):
+        rate = cbQosTSCfgTable[idx]['cbQosTSCfgRate']
+        unit = cbQosTSCfgTable[idx]['cbQosTSCfgRateType']
+        if unit == '1':   # bps
+            rate = str(int(rate) / 1000)
+        return (rate, unit)
+
+    def get_interface(self, cbQosServicePolicyTable, interfaces, idx):
+        interface_idx = cbQosServicePolicyTable[idx]['cbQosIfIndex']
+        interface_name = interfaces[interface_idx]
+        return (interface_idx, interface_name)
+
+    def get_full_oid(self, base_oid, policy_idx, obj_idx):
+        return qos_oids[base_oid] + '.' + str(policy_idx) + '.' + str(obj_idx)
+
+    # ---------------------------------------------------------------------------------------
+    def format_nr(self, number):
+    # 1000000000 --> 1'000'000'000
+    # Python 2.7 has formats, but we are still under 2.6
+    # ---------------------------------------------------------------------------------------
+
+        try:
+            number = int(number)
+            s = '%d' % number
+            groups = []
+            while s and s[-1].isdigit():
+                groups.append(s[-3:])
+                s = s[:-3]
+            return s + "'".join(reversed(groups))
+
+        except:
+            return number
+
+
+
 
 class AutoVivification(dict):
     def __getitem__(self, item):

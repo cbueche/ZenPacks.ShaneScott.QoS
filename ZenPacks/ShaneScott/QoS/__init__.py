@@ -12,20 +12,13 @@ from Products.Zuul.interfaces import ICatalogTool
 from Products.ZenModel.OperatingSystem import OperatingSystem
 from Products.ZenRelations.RelSchema import *
 
-OperatingSystem._relations += (( "policies", ToManyCont(ToOne, "ZenPacks.ShaneScott.QoS.Policy", "os")),( "classes", ToManyCont(ToOne, "ZenPacks.ShaneScott.QoS.ClassMap", "os")),( "servicepolicies", ToManyCont(ToOne, "ZenPacks.ShaneScott.QoS.ServicePolicy", "os")),)
+
+OperatingSystem._relations += (( "classes", ToManyCont(ToOne, "ZenPacks.ShaneScott.QoS.ClassMap", "os")),) 
 
 
 def initialize(registrar):
         registrar.registerClass(
-                Policy.Policy,
-                permission='Add DMD Objects',
-        )
-        registrar.registerClass(
                 ClassMap.ClassMap,
-                permission='Add DMD Objects',
-        )
-        registrar.registerClass(
-                ServicePolicy.ServicePolicy,
                 permission='Add DMD Objects',
         )
 
@@ -43,13 +36,11 @@ class ZenPack(ZenPackBase):
         networkOrg = app.dmd.findChild('Devices/Network/Router')
         for plugin in networkOrg.zCollectorPlugins:
             plugins.append(plugin)
-        plugins.append('QoSServicePolicy')
         plugins.append('QoSClass')
-        plugins.append('QoSPolicy')
         log.info('Setting /Network/Router/QoS properties')
         QoSOrg.setZenProperty( 'zCollectorPlugins', plugins )
-        #log.info('Install pysnmp')
-        #os.system('easy_install pysnmp')
+        log.info('Install pysnmp')
+        os.system('easy_install pysnmp')
 
 
     def remove(self, app, leaveObjects=False):

@@ -24,8 +24,10 @@ class ClassMap(OSComponent):
     allocName = ''
     parentInterface = ''
     parentServicePolicy = ''
+    unifiedLegend = ''
     direction = ''
     allocBandwidth = ''
+    policeRate = ''
     allocType = ''
 
     _properties = OSComponent._properties + (
@@ -33,8 +35,10 @@ class ClassMap(OSComponent):
         {'id':'allocName', 'type':'string', 'mode':'w'},
         {'id':'parentInterface', 'type':'string', 'mode':'w'},
         {'id':'parentServicePolicy', 'type':'string', 'mode':'w'},
+        {'id':'unifiedLegend', 'type':'string', 'mode':'w'},
         {'id':'direction', 'type':'string', 'mode':'w'},
         {'id':'allocBandwidth', 'type':'string', 'mode':'w'},
+        {'id':'policeRate', 'type':'string', 'mode':'w'},
         {'id':'allocType', 'type':'string', 'mode':'w'},
         )
 
@@ -94,11 +98,20 @@ class ClassMap(OSComponent):
     def getParentServicePolicy(self):
         return self.parentServicePolicy
 
+    def getUnifiedLegend(self):
+        return self.unifiedLegend
+
     def getAllocBandwidth(self):
         return self.allocBandwidth
 
     def getAllocBandwidthNsuffix(self):
-        return self.allocBandwidth + ' ' + str(self.allocType)
+        allocBandwidth = self.allocBandwidth + ' ' + str(self.allocType)
+        if allocBandwidth == '0 kbps':
+            allocBandwidth = ''
+        return allocBandwidth
+
+    def getPoliceRate(self):
+        return self.policeRate
 
     def viewName(self):
         return self.id

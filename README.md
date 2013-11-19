@@ -91,6 +91,15 @@ The modeling can be debugged on the command-line. Be aware that the output is no
     zenmodeler run -v 10 -d devicename
 
 
+Debugging the QoS configuration parsing
+---------------------------------------
+
+Deeply buried within the Zenpack is a script I wrote to understand QoS and how Cisco models it in its MIB. The script can be invoked by something like this (adapt the path accordingly):
+
+    $ZENHOME/ZenPacks/ZenPacks.ShaneScott.QoS.egg/ZenPacks/ShaneScott/QoS/utils/qos_parser.py -c community -d device
+
+It produces a hierarchical view of service-policies attached to interfaces, including the underlying classes and policies. The code of the ZenPack modeler is an adaptation of this script.
+
 
 Dependencies
 ------------

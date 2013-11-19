@@ -13,14 +13,6 @@ else:
     SingleLineText = schema.Text
     MultiLineText = schema.TextLine
 
-class IServicePolicyInfo(IComponentInfo):
-    """
-    Info adapter for Policy components.
-    """
-    instance = schema.Text(title=_t(u"Instance"), readonly=True, group='Overview')
-    parentInterface = schema.Text(title=_t(u"Interface"), readonly=True, group='Overview')
-    direction = schema.Text(title=_t(u"Direction"), readonly=True, group='Overview')
-
 class IClassMapInfo(IComponentInfo):
     """
     Info adapter for ClassMap components.
@@ -30,13 +22,5 @@ class IClassMapInfo(IComponentInfo):
     direction = schema.Text(title=_t(u"Direction"), readonly=True, group='Overview')
     allocBandwidth = schema.Text(title=_t(u"Bandwidth"), readonly=True, group='Overview')
     parentServicePolicy = schema.Text(title=_t(u"Policy"), readonly=True, group='Overview')
-
-class IPolicyInfo(IComponentInfo):
-    """
-    Info adapter for ClassMap components.
-    """
-    instance = schema.Text(title=_t(u"Instance"), readonly=True, group='Overview')
-    parentInterface = schema.Text(title=_t(u"Interface"), readonly=True, group='Overview')
-    direction = schema.Text(title=_t(u"Direction"), readonly=True, group='Overview')
-    parentClassMap = schema.Text(title=_t(u"Policy"), readonly=True, group='Overview')
-    parentServicePolicy = schema.Text(title=_t(u"Policy"), readonly=True, group='Overview')
+    unifiedLegend = schema.Text(title=_t(u"Legend"), readonly=True, group='Overview')
+    policeRate = schema.Text(title=_t(u"PoliceRate"), readonly=True, group='Overview')

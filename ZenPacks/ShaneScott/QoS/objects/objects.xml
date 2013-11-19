@@ -40,7 +40,7 @@ Auto
 <tomanycont id='datapoints'>
 <object id='cbQosCMDropPkt64' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+COUNTER
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -76,7 +76,7 @@ Auto
 <tomanycont id='datapoints'>
 <object id='cbQosCMDropPktOverflow' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+COUNTER
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -112,7 +112,7 @@ Auto
 <tomanycont id='datapoints'>
 <object id='cbQosCMPostPolicyByte64' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+COUNTER
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -148,7 +148,7 @@ Auto
 <tomanycont id='datapoints'>
 <object id='cbQosCMPrePolicyByte64' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
-GAUGE
+COUNTER
 </property>
 <property type="boolean" id="isrow" mode="w" >
 True
@@ -188,7 +188,7 @@ False
 COMMENT:\\s
 COMMENT:\\s
 
-COMMENT:&lt;b&gt;${here/parentInterface} -&gt; ${here/direction} -&gt; ${here/parentServicePolicy} -&gt; ${here/allocName} -&gt; Drops&lt;/b&gt;
+COMMENT:&lt;b&gt;${here/unifiedLegend} -&gt; Drops&lt;/b&gt;
 
 COMMENT:&lt;b&gt;Bandwidth\: ${here/allocBandwidth} ${here/allocType}&lt;/b&gt;
 </property>
@@ -286,7 +286,7 @@ False
 COMMENT:\\s
 COMMENT:\\s
 
-COMMENT:&lt;b&gt;${here/parentInterface} -&gt; ${here/direction} -&gt; ${here/parentServicePolicy} -&gt; ${here/allocName} -&gt; Throughput&lt;/b&gt;
+COMMENT:&lt;b&gt;${here/unifiedLegend} -&gt; Throughput&lt;/b&gt;
 
 COMMENT:&lt;b&gt;Bandwidth\: ${here/allocBandwidth} ${here/allocType}&lt;/b&gt;
 </property>
