@@ -2,6 +2,18 @@ QoS ZenPack for Zenoss
 ======================
 
 
+Status
+------
+
+I'm new in writing ZenPacks, so this piece of software will most probably hoose your precious Zenoss installation. Handle with care, consider it as alpha-quality, and feel free to submit patches.
+
+
+Warning
+-------
+
+In the current version, the ZenPack works when installed in development mode (using "--link") but not when installed normaly. Still investigating why.
+
+
 Features
 --------
 
@@ -100,9 +112,9 @@ The modeling can be debugged on the command-line. Be aware that the output is no
 Debugging the QoS configuration parsing
 ---------------------------------------
 
-Deeply buried within the Zenpack is a script I wrote to understand QoS and how Cisco models it in its MIB. The script can be invoked by something like this (adapt the path accordingly):
+Deeply buried within the Zenpack distribution is a script I wrote to understand QoS and how Cisco models it in its MIB. The script can be invoked by something like this (adapt the path accordingly and/or copy the script to whatewer sane location):
 
-    $ZENHOME/ZenPacks/ZenPacks.ShaneScott.QoS.egg/ZenPacks/ShaneScott/QoS/utils/qos_parser.py -c community -d device
+    .../qos_parser.py -c community -d device
 
 It produces a hierarchical view of service-policies attached to interfaces, including the underlying classes and policies. The code of the ZenPack modeler is an adaptation of this script.
 
@@ -119,5 +131,5 @@ Authors
 -------
 
 - [Shane William Scott](http://www.shanewilliamscott.com/) did the initial 1.0 implementation. Kudos for his Zenoss skills and ZenPack-fu, Shane rocks !
-- Charles Bueche adapted the code and fixed some issues, eg the modeling for the Cisco ASR routers.
+- [Charles Bueche](http://www.netnea.com/cms/netnea-the-team/charles-bueche/) adapted the code and fixed some issues, eg the modeling for the Cisco ASR routers.
 
