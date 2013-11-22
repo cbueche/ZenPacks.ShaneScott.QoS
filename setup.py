@@ -3,9 +3,9 @@
 # or saved.  Do not modify them directly here.
 # NB: PACKAGES is deprecated
 NAME = "ZenPacks.ShaneScott.QoS"
-VERSION = "1.3"
+VERSION = "1.3.1"
 AUTHOR = "Shane Scott, Charles Bueche"
-LICENSE = ""
+LICENSE = "GNU GPL v2"
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.ShaneScott']
 PACKAGES = ['ZenPacks', 'ZenPacks.ShaneScott', 'ZenPacks.ShaneScott.QoS']
 INSTALL_REQUIRES = []
