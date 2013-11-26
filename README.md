@@ -8,12 +8,6 @@ Status
 I'm new in writing ZenPacks, so this piece of software will most probably hoose your precious Zenoss installation. Handle with care, consider it as alpha-quality, and feel free to submit patches.
 
 
-Warning
--------
-
-In the current version, the ZenPack works when installed in development mode (using "--link") but not when installed normaly. Still investigating why.
-
-
 Features
 --------
 
@@ -21,7 +15,7 @@ Features
 - Shows the service policy for each interface.
 - List the QoS classes for each policy.
 - As the policies and classes might be recursive, the QoS classes recurse two levels deep (interface → service-policy → classes → policy → classes).
-- The traffic (bits/s) and drops for every class are graphed.
+- The traffic (kbits/s) and drops for every class are graphed.
 - Only output traffic is shown.
 
 
@@ -104,6 +98,8 @@ If the QoSClass container does not appear under 'Components' on the device page,
 
     zenoss restart
 
+If this break down with DB-conflict errors, try to stop zenmodeler and retry.
+
 The modeling can be debugged on the command-line. Be aware that the output is not easy to interpret, as the QoS MIB is complex.
 
     zenmodeler run -v 10 -d devicename
@@ -114,9 +110,23 @@ Debugging the QoS configuration parsing
 
 Deeply buried within the Zenpack distribution is a script I wrote to understand QoS and how Cisco models it in its MIB. The script can be invoked by something like this (adapt the path accordingly and/or copy the script to whatewer sane location):
 
-    .../qos_parser.py -c community -d device
+    $ZENHOME/ZenPacks/ZenPacks.ShaneScott.QoS-1.3.1-py2.6.egg/ZenPacks/ShaneScott/QoS/bin/qos_parser.py -c community -d device
 
 It produces a hierarchical view of service-policies attached to interfaces, including the underlying classes and policies. The code of the ZenPack modeler is an adaptation of this script.
+
+
+Removal / un-installation
+-------------------------
+
+I'm not sure the ZenPack removal would remove everything and do the necessary cleanup. Maybe you need some manual cleanup, eg I had to do this two or three times, plus a reindex().
+
+    zendmd
+    for d in dmd.Devices.getSubDevices():
+        d.os.buildRelations()
+
+    commit()
+
+Nevertheless, there is a remaining issue: after ZenPack removal, ClassMap entries persist in the Component parts of devices, producing a KeyError when clicked. That is now nice, and ideas/patches to fix this issue are very welcome.
 
 
 Dependencies

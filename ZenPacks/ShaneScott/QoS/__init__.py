@@ -39,6 +39,7 @@ class ZenPack(ZenPackBase):
         plugins.append('QoSClass')
         log.info('Setting /Network/Router/QoS properties')
         QoSOrg.setZenProperty( 'zCollectorPlugins', plugins )
+        self.rebuildRelations(app.zport.dmd)
         log.info('Install pysnmp')
         os.system('easy_install pysnmp')
 
@@ -52,6 +53,7 @@ class ZenPack(ZenPackBase):
             log.info('Removing QoS organizer')
             app.dmd.Devices.Network.Router.manage_deleteOrganizer('QoS')
         super(ZenPack, self).remove(app, leaveObjects=leaveObjects)
+        self.rebuildRelations(app.zport.dmd)
 
 
     def symlinkPlugin(self):
@@ -60,3 +62,19 @@ class ZenPack(ZenPackBase):
 
     def removePluginSymlink(self):
         log.info('Nothing needing unlinking.')
+
+
+    def rebuildRelations(self, dmd):
+        log.info('Building device relations [This could take a long time]')
+        # Build relations on all devices
+        try:
+            from transaction import commit
+            for d in dmd.Devices.getSubDevices():
+                d.os.buildRelations()
+                commit()
+        except Exception, e:
+            log.error('Some unknown problem occured during relationship construction: %s' % (e))
+            pass
+
+            log.info("Done rebuild relations")
+
