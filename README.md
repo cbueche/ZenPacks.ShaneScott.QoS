@@ -137,9 +137,14 @@ Dependencies
 - pysnmp 4.x (in Zenoss environment)
 
 
+Development
+-----------
+
+`Vagrantfile` and `dependency_manager.rb` are used solely during the Zenpack development.
+
+
 Authors
 -------
 
 - [Shane William Scott](http://www.shanewilliamscott.com/) did the initial 1.0 implementation. Kudos for his Zenoss skills and ZenPack-fu, Shane rocks !
 - [Charles Bueche](http://www.netnea.com/cms/netnea-the-team/charles-bueche/) adapted the code and fixed some issues, eg the modeling for the Cisco ASR routers.
-

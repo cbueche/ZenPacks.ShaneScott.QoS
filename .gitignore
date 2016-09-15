@@ -1,0 +1,24 @@
+# .gitignore for zenpack
+
+.vagrant
+
+# python files
+.swp
+.idea
+*.pyc
+*.pyo
+
+
+# misc stuff
+*~
+.DS_Store
+
+# zenpack stuff
+
+build
+setuptools*
+*.egg
+*.egg-info
+*EGG-INFO*
+*dist
+tmp

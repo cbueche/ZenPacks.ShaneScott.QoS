@@ -76,5 +76,5 @@ class ZenPack(ZenPackBase):
             log.error('Some unknown problem occured during relationship construction: %s' % (e))
             pass
 
-            log.info("Done rebuild relations")
+        log.info("Done rebuild relations")
 
