@@ -13,7 +13,7 @@ from Products.ZenModel.OperatingSystem import OperatingSystem
 from Products.ZenRelations.RelSchema import *
 
 
-OperatingSystem._relations += (( "classes", ToManyCont(ToOne, "ZenPacks.ShaneScott.QoS.ClassMap", "os")),) 
+OperatingSystem._relations += (( "classes", ToManyCont(ToOne, "ZenPacks.ShaneScott.QoS.ClassMap", "os")),)
 
 
 def initialize(registrar):
@@ -40,9 +40,14 @@ class ZenPack(ZenPackBase):
         log.info('Setting /Network/Router/QoS properties')
         QoSOrg.setZenProperty( 'zCollectorPlugins', plugins )
         self.rebuildRelations(app.zport.dmd)
-        log.info('Install pysnmp')
-        os.system('easy_install pysnmp')
-
+        # check pre-requisites
+        try:
+            import pysnmp
+            assert pysnmp.__version__ == '4.3.2'
+            import pyasn1
+            assert pyasn1.__version__ == '0.1.9'
+        except:
+            log.warn('Please install pyasn1 0.1.9 and pysnmp 4.3.2 with the following commands : "easy_install pyasn1==0.1.9; easy_install pysnmp==4.3.2"')
 
     def remove(self, app, leaveObjects=False):
         if not leaveObjects:
@@ -77,4 +82,3 @@ class ZenPack(ZenPackBase):
             pass
 
         log.info("Done rebuild relations")
-

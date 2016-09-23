@@ -25,6 +25,13 @@ Screenshots
 Everyone wants [screenshots](http://www.netnea.com/cms/2013/11/19/qos-parsing-on-cisco-routers/).
 
 
+Changelog
+---------
+
+- 26.11.2013 : V 1.3.1 for Zenoss 3
+- 23.09.2016 : V 1.4.0 for Zenoss 4 : use SNMP bulk-GET for modeling
+
+
 Limitations
 -----------
 
@@ -59,6 +66,10 @@ The following IOS commands might be present on modeled devices to allow for long
 Installation
 ------------
 
+We use fixed versions of pyasn1 and PySNMP, as the get commands and options seems to change all the time.
+
+    easy_install pyasn1==0.1.9
+    easy_install pysnmp==4.3.2
     cd ~/tmp
     git clone https://github.com/cbueche/ZenPacks.ShaneScott.QoS.git
     zenpack --install ZenPacks.ShaneScott.QoS
@@ -68,7 +79,6 @@ Installation
 Post install notes
 ------------------
 
-- The zenpack will install pysnmp automatically.
 - Device class /Devices/Network/Router/QoS will be created
 - The QoS modeller QoSClass will be added. zSnmpVer is also set to v2c. Devices must be polled using v2c or v3.
 - if the QoSClass container does not appear under 'Components' on the device page, see the "troubleshooting" section below.
@@ -110,7 +120,7 @@ Debugging the QoS configuration parsing
 
 Deeply buried within the Zenpack distribution is a script I wrote to understand QoS and how Cisco models it in its MIB. The script can be invoked by something like this (adapt the path accordingly and/or copy the script to whatewer sane location):
 
-    $ZENHOME/ZenPacks/ZenPacks.ShaneScott.QoS-1.3.1-py2.6.egg/ZenPacks/ShaneScott/QoS/bin/qos_parser.py -c community -d device
+    $ZENHOME/ZenPacks/ZenPacks.ShaneScott.QoS-${version}.egg/ZenPacks/ShaneScott/QoS/bin/qos_parser.py -c community -d device
 
 It produces a hierarchical view of service-policies attached to interfaces, including the underlying classes and policies. The code of the ZenPack modeler is an adaptation of this script.
 

@@ -64,9 +64,10 @@ Vagrant.configure("2") do |config|
         # SNMP command-line tools
         yum -y install net-snmp-utils
 
-        # development tools
+        # development tools and other utilities
         yum -y install git
         yum -y install unzip
+        yum -y install telnet
 
         # set environment and password of zenoss user
         echo 'if [ -f ~/.bashrc ]; then' > /home/zenoss/.bash_profile

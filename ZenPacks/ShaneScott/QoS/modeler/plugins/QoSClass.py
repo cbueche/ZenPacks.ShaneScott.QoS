@@ -1,11 +1,17 @@
+#
+# ZenPacks.ShaneScott.QoS/ZenPacks/ShaneScott/QoS/modeler/plugins/QoSClass.py
+#
+
+"""
+QoSClass.py
+QoSClass models all cbQos policies, classes, Queues, etc.
+"""
+
 import Globals
 from Products.DataCollector.plugins.CollectorPlugin import PythonPlugin
 from Products.DataCollector.plugins.DataMaps import ObjectMap, MultiArgs
 from ZenPacks.ShaneScott.QoS.QoS import QoSmodel, AutoVivification
-from struct import *
-import sys
-import string
-import subprocess
+
 
 class QoSClass(PythonPlugin):
 
@@ -69,7 +75,7 @@ class QoSClass(PythonPlugin):
         cbQosObjectsEntries = modeler.get_table(hostname, port, community, oids['cbQosObjectsEntry'])
         cbQosObjectsTable = modeler.get_cbQosObjectTable(cbQosObjectsEntries)
         cbQosPolicyMapCfgEntries = modeler.get_table(hostname, port, community, oids['cbQosPolicyMapCfgEntry'])
-        cbQosPolicyMapCfgTable = modeler.get_cbQosPolicyMapTable(cbQosPolicyMapCfgEntries)        
+        cbQosPolicyMapCfgTable = modeler.get_cbQosPolicyMapTable(cbQosPolicyMapCfgEntries)
         cbQosCMCfgEntries = modeler.get_table(hostname, port, community, oids['cbQosCMCfgEntry'])
         cbQosCMCfgTable = modeler.get_cbQosCMCfgTable(cbQosCMCfgEntries)
         cbQosQueueingCfgEntries = modeler.get_table(hostname, port, community, oids['cbQosQueueingCfgEntry'])
@@ -218,7 +224,7 @@ class QoSClass(PythonPlugin):
                                 ObjectsTable[cbQosObjectsTable_top_idx]['subclasses'][classmapname_L2]['subclasses'][classmapname_L4]['random_detect'] = True
                                 ObjectsTable[cbQosObjectsTable_top_idx]['subclasses'][classmapname_L2]['subclasses'][classmapname_L4]['cfgidx']        = idx_L4
 
-                            # REMARK : 
+                            # REMARK :
                             # we are now in double-nested classes :
                             # interface -> service-policy -> class-map -> policy-map -> class-map
                             # some CCIE's argue deeper recursion is indeed possible, but highly improbable, so we stop recursing here.
@@ -348,10 +354,10 @@ class QoSClass(PythonPlugin):
                     om.allocBandwidth = modeler.format_nr(entry[2])
                     om.allocType = entry[3]
                     om.policeRate = modeler.format_nr(entry[10]) + ' ' + entry[11]
-                    parentServicePolicy = entry[4] 
+                    parentServicePolicy = entry[4]
                     parentServicePolicy = parentServicePolicy.replace('\'','')
                     om.parentServicePolicy = parentServicePolicy
-                    # what we display on the graph 
+                    # what we display on the graph
                     unifiedLegendList = omId.split('-')
                     unifiedLegendList.pop(0)
                     unifiedLegend = ' / '.join(unifiedLegendList)
