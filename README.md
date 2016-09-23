@@ -62,7 +62,6 @@ The following IOS commands might be present on modeled devices to allow for long
     snmp-server ifindex persist
     snmp mib persist cbqos
 
-
 Installation
 ------------
 
@@ -75,7 +74,6 @@ We use fixed versions of pyasn1 and PySNMP, as the get commands and options seem
     git clone https://github.com/cbueche/ZenPacks.ShaneScott.QoS.git
     zenpack --install ZenPacks.ShaneScott.QoS
     zenoss restart
-
 
 Post install notes
 ------------------
@@ -100,7 +98,9 @@ Usage
 Troubleshooting
 ---------------
 
-If the QoSClass container does not appear under 'Components' on the device page, it might be because the object relations were not built correctly at init time. Fix them with this code:
+If the QoSClass container does not appear under 'Components' on the device page, it might be because the object relations were not built correctly at init time. Another symptom is `WARNING zen.ApplyDataMap: no relationship:classes found on:os` in zenhub.log.
+
+Fix :
 
     zendmd
     for d in dmd.Devices.getSubDevices():
@@ -115,7 +115,6 @@ If this break down with DB-conflict errors, try to stop zenmodeler and retry.
 The modeling can be debugged on the command-line. Be aware that the output is not easy to interpret, as the QoS MIB is complex.
 
     zenmodeler run -v 10 -d devicename
-
 
 Debugging the QoS configuration parsing
 ---------------------------------------
