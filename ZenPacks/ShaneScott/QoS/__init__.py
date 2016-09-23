@@ -1,6 +1,7 @@
 import Globals
 import logging
 import os
+import sys
 log = logging.getLogger('zen.ZenQoS')
 
 import ZenPacks.ShaneScott.QoS
@@ -27,6 +28,9 @@ class ZenPack(ZenPackBase):
     packZProperties =  []
 
     def install(self, app):
+
+        self.check_requirements()
+
         super(ZenPack, self).install(app)
         self.symlinkPlugin()
 
@@ -40,14 +44,6 @@ class ZenPack(ZenPackBase):
         log.info('Setting /Network/Router/QoS properties')
         QoSOrg.setZenProperty( 'zCollectorPlugins', plugins )
         self.rebuildRelations(app.zport.dmd)
-        # check pre-requisites
-        try:
-            import pysnmp
-            assert pysnmp.__version__ == '4.3.2'
-            import pyasn1
-            assert pyasn1.__version__ == '0.1.9'
-        except:
-            log.warn('Please install pyasn1 0.1.9 and pysnmp 4.3.2 with the following commands : "easy_install pyasn1==0.1.9; easy_install pysnmp==4.3.2"')
 
     def remove(self, app, leaveObjects=False):
         if not leaveObjects:
@@ -68,6 +64,22 @@ class ZenPack(ZenPackBase):
     def removePluginSymlink(self):
         log.info('Nothing needing unlinking.')
 
+    def check_requirements(self):
+        import pkg_resources
+        try:
+            import pyasn1
+            assert pkg_resources.get_distribution("pyasn1").version == '0.1.9'
+        except Exception as e:
+            log.warn('pyasn1 check failed, probably an old version lies around : %s ' % e)
+            log.info('Please install pyasn1 0.1.9 with the following commands : "rm -rf /opt/zenoss/lib/python/pyasn1*; easy_install pyasn1==0.1.9". When done, restart the installation of this ZenPack.')
+            sys.exit(1)
+        try:
+            import pysnmp
+            assert pysnmp.__version__ == '4.3.2'
+        except Exception as e:
+            log.warn('pysnmp check: %s ' % e)
+            log.info('Please install pysnmp 4.3.2 with the following commands : "easy_install pysnmp==4.3.2". When done, restart the installation of this ZenPack.')
+            sys.exit(1)
 
     def rebuildRelations(self, dmd):
         log.info('Building device relations [This could take a long time]')

@@ -66,8 +66,9 @@ The following IOS commands might be present on modeled devices to allow for long
 Installation
 ------------
 
-We use fixed versions of pyasn1 and PySNMP, as the get commands and options seems to change all the time.
+We use fixed versions of pyasn1 and PySNMP, as the get commands and options seems to change all the time. The problem is that an old and unsupported version of pyasn1 lies in `/opt/zenoss/lib/python/pyasn1`. It is better to remove it, as simply using easy_install with the new one causes problems (`ImportError: No module named compat`).
 
+    rm -rf /opt/zenoss/lib/python/pyasn1*
     easy_install pyasn1==0.1.9
     easy_install pysnmp==4.3.2
     cd ~/tmp
@@ -80,8 +81,9 @@ Post install notes
 ------------------
 
 - Device class /Devices/Network/Router/QoS will be created
-- The QoS modeller QoSClass will be added. zSnmpVer is also set to v2c. Devices must be polled using v2c or v3.
+- The QoS modeler QoSClass will be added. zSnmpVer is also set to v2c. Devices must be polled using v2c or v3.
 - if the QoSClass container does not appear under 'Components' on the device page, see the "troubleshooting" section below.
+- if /Devices/Network/Router/QoS does not fit your device classes, manually associate the QoSClass modeler plugin to the classes where you want to model QoS, e.g. /Network/Router/Cisco
 
 
 Usage
@@ -89,7 +91,7 @@ Usage
 
 - Devices must be polled using v2c or v3.
 - QoS devices do not need to be in this /Devices/Network/Router/QoS specifically, but do need to be somewhere under /Devices/Network.
-- A QoS device can be modeled by adding the modeller QoSClass to that device or devices DeviceClass.
+- A QoS device can be modeled by adding the modeler QoSClass to that device or devices DeviceClass.
 - A QoS device that modeled OK will show 'QoS Class Maps' on the device component list.
 - 'Class Maps' provides all graphing. Graphs 'Throughput' and 'Drops' provided.
 - All object persistence based on naming and attributes rather than ifIndex.
@@ -144,7 +146,7 @@ Dependencies
 
 - Zenoss 3.2.1 (tested)
 - Zenoss 4.x (maybe working, to be confirmed)
-- pysnmp 4.x (in Zenoss environment)
+- pyasn1 and pysnmp 4.x (in Zenoss environment)
 
 
 Development
