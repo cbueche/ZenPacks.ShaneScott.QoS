@@ -51,7 +51,6 @@ class QoSmodel():
                     for varBind in varBinds:
                         table[varBind[0].prettyPrint()] = varBind[1].prettyPrint()
 
-        #log.debug('get_table : done')
         return table
 
     def get_cbQosServicePolicyTable(self, cbQosServicePolicyEntries):
