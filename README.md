@@ -25,6 +25,13 @@ Screenshots
 Everyone wants [screenshots](http://www.netnea.com/cms/2013/11/19/qos-parsing-on-cisco-routers/).
 
 
+Changelog
+---------
+
+- 26.11.2013 : V 1.3.1 for Zenoss 3
+- 23.09.2016 : V 1.4.0 for Zenoss 4 : use SNMP bulk-GET for modeling
+
+
 Limitations
 -----------
 
@@ -55,23 +62,26 @@ The following IOS commands might be present on modeled devices to allow for long
     snmp-server ifindex persist
     snmp mib persist cbqos
 
-
 Installation
 ------------
 
+We use fixed versions of pyasn1 and PySNMP, as the get commands and options seems to change all the time. The problem is that an old and unsupported version of pyasn1 lies in `/opt/zenoss/lib/python/pyasn1`. It is better to remove it, as simply using easy_install with the new one causes problems (`ImportError: No module named compat`).
+
+    rm -rf /opt/zenoss/lib/python/pyasn1*
+    easy_install pyasn1==0.1.9
+    easy_install pysnmp==4.3.2
     cd ~/tmp
     git clone https://github.com/cbueche/ZenPacks.ShaneScott.QoS.git
     zenpack --install ZenPacks.ShaneScott.QoS
     zenoss restart
 
-
 Post install notes
 ------------------
 
-- The zenpack will install pysnmp automatically.
 - Device class /Devices/Network/Router/QoS will be created
-- The QoS modeller QoSClass will be added. zSnmpVer is also set to v2c. Devices must be polled using v2c or v3.
+- The QoS modeler QoSClass will be added. zSnmpVer is also set to v2c. Devices must be polled using v2c or v3.
 - if the QoSClass container does not appear under 'Components' on the device page, see the "troubleshooting" section below.
+- if /Devices/Network/Router/QoS does not fit your device classes, manually associate the QoSClass modeler plugin to the classes where you want to model QoS, e.g. /Network/Router/Cisco
 
 
 Usage
@@ -79,7 +89,7 @@ Usage
 
 - Devices must be polled using v2c or v3.
 - QoS devices do not need to be in this /Devices/Network/Router/QoS specifically, but do need to be somewhere under /Devices/Network.
-- A QoS device can be modeled by adding the modeller QoSClass to that device or devices DeviceClass.
+- A QoS device can be modeled by adding the modeler QoSClass to that device or devices DeviceClass.
 - A QoS device that modeled OK will show 'QoS Class Maps' on the device component list.
 - 'Class Maps' provides all graphing. Graphs 'Throughput' and 'Drops' provided.
 - All object persistence based on naming and attributes rather than ifIndex.
@@ -88,7 +98,9 @@ Usage
 Troubleshooting
 ---------------
 
-If the QoSClass container does not appear under 'Components' on the device page, it might be because the object relations were not built correctly at init time. Fix them with this code:
+If the QoSClass container does not appear under 'Components' on the device page, it might be because the object relations were not built correctly at init time. Another symptom is `WARNING zen.ApplyDataMap: no relationship:classes found on:os` in zenhub.log.
+
+Fix :
 
     zendmd
     for d in dmd.Devices.getSubDevices():
@@ -104,13 +116,12 @@ The modeling can be debugged on the command-line. Be aware that the output is no
 
     zenmodeler run -v 10 -d devicename
 
-
 Debugging the QoS configuration parsing
 ---------------------------------------
 
 Deeply buried within the Zenpack distribution is a script I wrote to understand QoS and how Cisco models it in its MIB. The script can be invoked by something like this (adapt the path accordingly and/or copy the script to whatewer sane location):
 
-    $ZENHOME/ZenPacks/ZenPacks.ShaneScott.QoS-1.3.1-py2.6.egg/ZenPacks/ShaneScott/QoS/bin/qos_parser.py -c community -d device
+    $ZENHOME/ZenPacks/ZenPacks.ShaneScott.QoS-${version}.egg/ZenPacks/ShaneScott/QoS/bin/qos_parser.py -c community -d device
 
 It produces a hierarchical view of service-policies attached to interfaces, including the underlying classes and policies. The code of the ZenPack modeler is an adaptation of this script.
 
@@ -134,7 +145,13 @@ Dependencies
 
 - Zenoss 3.2.1 (tested)
 - Zenoss 4.x (maybe working, to be confirmed)
-- pysnmp 4.x (in Zenoss environment)
+- pyasn1 and pysnmp 4.x (in Zenoss environment)
+
+
+Development
+-----------
+
+`Vagrantfile` and `dependency_manager.rb` are used solely during the Zenpack development.
 
 
 Authors
@@ -142,4 +159,3 @@ Authors
 
 - [Shane William Scott](http://www.shanewilliamscott.com/) did the initial 1.0 implementation. Kudos for his Zenoss skills and ZenPack-fu, Shane rocks !
 - [Charles Bueche](http://www.netnea.com/cms/netnea-the-team/charles-bueche/) adapted the code and fixed some issues, eg the modeling for the Cisco ASR routers.
-

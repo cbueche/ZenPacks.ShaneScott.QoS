@@ -1,35 +1,57 @@
+#
+# ZenPacks.ShaneScott.QoS/ZenPacks/ShaneScott/QoS/QoS.py
+#
+
 import sys
-import logging
-import pprint
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.hlapi import *
+from pysnmp import __version__ as pysnmp_version
 from optparse import OptionParser
+import logging
 
 class QoSmodel():
 
+    # a function to run a snmpbulkget on an OID, and get a dictionary back
+    # ---------------------------------------------------------------------------------------
     def get_table(self, hostname, port, community, oid):
-        """ run a snmpwalk on an OID, and get a dictionary back """
+    # ---------------------------------------------------------------------------------------
 
-        errorIndication, errorStatus, errorIndex, varBindTable = cmdgen.CommandGenerator().nextCmd(cmdgen.CommunityData('my-agent', community), cmdgen.UdpTransportTarget((hostname, port)), oid)
+        mylog = logging.getLogger("zen.ZenQoSmodel")
 
-        if errorIndication:
-            logger.critical('error : %s', errorIndication)
-            print "FATAL 1, exit"
-            sys.exit(1)
-        else:
-            if errorStatus:
-                logger.critical('%s at %s\n' % (
-                    errorStatus.prettyPrint(),
-                    errorIndex and varBindTable[-1][int(errorIndex)-1] or '?'
-                    ))
-                sys.exit(1)
-                print "FATAL 2, exit"
+        # some tuning that might need adjustements
+        nonRepeaters = 0
+        maxRepetitions = 20
+
+        mylog.debug('get_table : hostname=%s, port=%s, community=%s, oid=%s', hostname, port, 'community', oid)
+        table = {}
+        for (errorIndication,
+             errorStatus,
+             errorIndex,
+             varBinds) in bulkCmd(SnmpEngine(),
+                                  CommunityData(community, mpModel=1),
+                                  UdpTransportTarget((hostname, port)),
+                                  ContextData(),
+                                  nonRepeaters,
+                                  maxRepetitions,
+                                  ObjectType(ObjectIdentity(oid)),
+                                  lexicographicMode=False,
+                                  lookupMib=False):
+
+            if errorIndication:
+                mylog.error('error : %s', errorIndication)
+                return {}
             else:
-                # sucessful walk. Store the index and values in a dictionary
-                table = {}
-                for varBindTableRow in varBindTable:
-                    for name, val in varBindTableRow:
-                        table[name.prettyPrint()] = val.prettyPrint()
-                return table
+                if errorStatus:
+                    mylog.error('%s at %s\n' % (
+                        errorStatus.prettyPrint(),
+                        errorIndex and varBinds[-1][int(errorIndex)-1] or '?'
+                        ))
+                    return {}
+                else:
+                    # sucessful walk. Store the index and values in a dictionary
+                    for varBind in varBinds:
+                        table[varBind[0].prettyPrint()] = varBind[1].prettyPrint()
+
+        return table
 
     def get_cbQosServicePolicyTable(self, cbQosServicePolicyEntries):
         cbQosServicePolicyTable = AutoVivification()
@@ -355,8 +377,6 @@ class QoSmodel():
 
         except:
             return number
-
-
 
 
 class AutoVivification(dict):

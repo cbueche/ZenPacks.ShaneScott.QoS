@@ -1,0 +1,8 @@
+# requirements.txt for ZenPacks.ShaneScott.QoS
+
+# install pyasn1 0.1.9 and pysnmp 4.3.2 with the following commands :
+#     easy_install pyasn1==0.1.9
+#     easy_install pysnmp==4.3.2
+
+pyasn1==0.1.9
+pysnmp==4.3.2

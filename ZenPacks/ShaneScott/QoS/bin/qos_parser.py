@@ -6,6 +6,7 @@
 #
 # 4.8.2011    : CB    : initial version to decode the QoS configuration of a device
 # 1.11.2013   : CB    : support non-standard indexing of cbQosObjectsTable in Cisco ASR
+# 15.9.2016   : CB    : support for Zenoss 4.x and use getbulk instead of getnext
 #
 # Usage : ./qos_parser.py -c community -d device [-D]
 #
@@ -14,40 +15,55 @@
 import sys
 import logging
 import pprint
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.hlapi import *
+from pysnmp import __version__ as pysnmp_version
 from optparse import OptionParser
 
 
-# a function to run a snmpwalk on an OID, and get a dictionary back
+# a function to run a snmpbulkget on an OID, and get a dictionary back
 # ---------------------------------------------------------------------------------------
 def get_table(hostname, port, community, oid):
 # ---------------------------------------------------------------------------------------
 
+    # some tuning that might need adjustements
+    nonRepeaters = 0
+    maxRepetitions = 20
+
     logger.debug('get_table : hostname=%s, port=%s, community=%s, oid=%s', hostname, port, 'community', oid)
+    table = {}
+    for (errorIndication,
+         errorStatus,
+         errorIndex,
+         varBinds) in bulkCmd(SnmpEngine(),
+                              CommunityData(community, mpModel=1),
+                              UdpTransportTarget((hostname, port)),
+                              ContextData(),
+                              nonRepeaters,
+                              maxRepetitions,
+                              ObjectType(ObjectIdentity(oid)),
+                              lexicographicMode=False,
+                              lookupMib=False):
 
-    errorIndication, errorStatus, errorIndex, varBindTable = cmdgen.CommandGenerator().nextCmd(cmdgen.CommunityData('my-agent', community), cmdgen.UdpTransportTarget((hostname, port)), oid)
-
-    if errorIndication:
-        logger.critical('error : %s', errorIndication)
-        print "FATAL 1, exit"
-        sys.exit(1)
-    else:
-        if errorStatus:
-            logger.critical('%s at %s\n' % (
-                errorStatus.prettyPrint(),
-                errorIndex and varBindTable[-1][int(errorIndex)-1] or '?'
-                ))
+        if errorIndication:
+            logger.critical('error : %s', errorIndication)
+            print "FATAL 1, exit"
             sys.exit(1)
-            print "FATAL 2, exit"
         else:
-            # sucessful walk. Store the index and values in a dictionary
-            table = {}
-            for varBindTableRow in varBindTable:
-                for name, val in varBindTableRow:
-                    logger.debug('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
-                    table[name.prettyPrint()] = val.prettyPrint()
-            logger.debug('get_table : done')
-            return table
+            if errorStatus:
+                logger.critical('%s at %s\n' % (
+                    errorStatus.prettyPrint(),
+                    errorIndex and varBinds[-1][int(errorIndex)-1] or '?'
+                    ))
+                sys.exit(1)
+                print "FATAL 2, exit"
+            else:
+                # sucessful walk. Store the index and values in a dictionary
+                for varBind in varBinds:
+                    table[varBind[0].prettyPrint()] = varBind[1].prettyPrint()
+
+    logger.debug('get_table : done')
+
+    return table
 
 # end def get_table
 # ---------------------------------------------------------------------------------------
@@ -398,7 +414,7 @@ def get_indices(cbQosObjectsTable, cbQosObjectsTable_top_idx, objectType, parent
 # ---------------------------------------------------------------------------------------
 def get_cbQosConfigIndex(top_idx, obj_idx):
 # ---------------------------------------------------------------------------------------
-    
+
     return cbQosObjectsTable[top_idx]['QosObjectsEntry'][obj_idx]['cbQosConfigIndex']
 
 
@@ -477,7 +493,7 @@ def format_nr(number):
 # ---------------------------------------------------------------------------------------
 
     try:
-        number = int(number)        
+        number = int(number)
         s = '%d' % number
         groups = []
         while s and s[-1].isdigit():
@@ -580,6 +596,11 @@ logger.propagate = False
 logger.setLevel(logging.DEBUG)
 
 logger.info("program start")
+
+if pysnmp_version == '4.3.2':
+    logger.info('pysnmp version : %s' % pysnmp_version)
+else:
+    logger.warn('Zenpack is only tested with pysnmp 4.3.2')
 
 # get arguments
 parser = OptionParser()
@@ -801,7 +822,7 @@ for cbQosObjectsTable_top_idx in cbQosObjectsTable.keys():
 				ObjectsTable[cbQosObjectsTable_top_idx]['subclasses'][classmapname_L2]['police_rate_type']      = police_rate_type
 				ObjectsTable[cbQosObjectsTable_top_idx]['subclasses'][classmapname_L2]['police_rate_type_text'] = police_rate_types[police_rate_type]
 				ObjectsTable[cbQosObjectsTable_top_idx]['subclasses'][classmapname_L2]['police_percent_rate']   = police_percent_rate
-				
+
             # find the shaping info for this class-map
             indices_L2b = get_indices(cbQosObjectsTable, cbQosObjectsTable_top_idx, object_types['trafficShaping'], idx_L2)
             for idx_L2b in indices_L2b:
@@ -872,7 +893,7 @@ for cbQosObjectsTable_top_idx in cbQosObjectsTable.keys():
 						ObjectsTable[cbQosObjectsTable_top_idx]['subclasses'][classmapname_L2]['subclasses'][classmapname_L4]['random_detect'] = True
 						ObjectsTable[cbQosObjectsTable_top_idx]['subclasses'][classmapname_L2]['subclasses'][classmapname_L4]['cfgidx']        = idx_L4
 
-                    # REMARK : 
+                    # REMARK :
                     # we are now in double-nested classes :
                     # interface -> service-policy -> class-map -> policy-map -> class-map
                     # some CCIE's argue deeper recursion is indeed possible, but highly improbable, so we stop recursing here.
